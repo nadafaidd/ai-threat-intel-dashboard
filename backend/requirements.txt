@@ -1,0 +1,10 @@
+streamlit
+pandas
+plotly
+numpy
+python-dateutil
+tqdm
+requests
+feedparser
+scikit-learn
+python-dotenv

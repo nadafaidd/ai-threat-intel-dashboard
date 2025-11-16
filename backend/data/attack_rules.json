@@ -1,0 +1,17 @@
+{
+  "phish": [
+    "T1566"
+  ],
+  "command injection": [
+    "T1059"
+  ],
+  "rce": [
+    "T1059"
+  ],
+  "brute": [
+    "T1110"
+  ],
+  "password spray": [
+    "T1110"
+  ]
+}
