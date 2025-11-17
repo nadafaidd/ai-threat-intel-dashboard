@@ -2,13 +2,18 @@ import React from "react";
 import GlobeMap from "./GlobeMap";
 
 // ⬅️ Put your real Streamlit dashboard URL here
-const STREAMLIT_DASHBOARD_URL = "https://ai-threat-intel-dashboard.streamlit.app";
+const STREAMLIT_DASHBOARD_URL =
+  "https://ai-threat-intel-dashboard.streamlit.app"; // change if different
 
-// Detect if we're in EMBED mode (inside Streamlit iframe)
+// Detect if we are inside an iframe (embedded in Streamlit)
 function detectEmbedMode(): boolean {
   if (typeof window === "undefined") return false;
-  const params = new URLSearchParams(window.location.search);
-  return params.get("embed") === "1";
+  try {
+    return window.self !== window.top; // true when inside an iframe
+  } catch {
+    // Some browsers can throw on cross-origin frame checks; treat as embedded.
+    return true;
+  }
 }
 
 const App: React.FC = () => {
@@ -37,7 +42,7 @@ const App: React.FC = () => {
           backdropFilter: "blur(10px)",
         }}
       >
-        {/* Static label for the globe */}
+        {/* Label for the globe */}
         <button
           style={{
             padding: "0.3rem 0.9rem",
@@ -52,7 +57,7 @@ const App: React.FC = () => {
           Global IOC Map
         </button>
 
-        {/* Only show this on the standalone Netlify site (not inside Streamlit iframe) */}
+        {/* Only show this when NOT embedded (i.e., not inside Streamlit iframe) */}
         {!embedMode && (
           <button
             onClick={goToDashboard}
