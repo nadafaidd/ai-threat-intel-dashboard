@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import GlobeMap from "./GlobeMap";
-import StreamlitDashboard from "./StreamlitDashboard";
 
-type Page = "globe" | "dashboard";
+// ⬅️ Put your real Streamlit dashboard URL here
+const STREAMLIT_DASHBOARD_URL = "https://ai-threat-intel-dashboard.streamlit.app";
 
-// Detect if we're in EMBED mode (inside Streamlit)
+// Detect if we're in EMBED mode (inside Streamlit iframe)
 function detectEmbedMode(): boolean {
   if (typeof window === "undefined") return false;
   const params = new URLSearchParams(window.location.search);
@@ -13,11 +13,13 @@ function detectEmbedMode(): boolean {
 
 const App: React.FC = () => {
   const embedMode = detectEmbedMode();
-  const [page, setPage] = useState<Page>("globe");
+
+  const goToDashboard = () => {
+    window.location.href = STREAMLIT_DASHBOARD_URL;
+  };
 
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
-      
       {/* Top nav */}
       <nav
         style={{
@@ -35,33 +37,30 @@ const App: React.FC = () => {
           backdropFilter: "blur(10px)",
         }}
       >
-        {/* Always show Global IOC Map */}
+        {/* Static label for the globe */}
         <button
-          onClick={() => setPage("globe")}
           style={{
             padding: "0.3rem 0.9rem",
             borderRadius: 999,
-            border: "1px solid",
-            borderColor: page === "globe" ? "#22c55e" : "transparent",
-            background: page === "globe" ? "#16a34a" : "#0f172a",
+            border: "1px solid #22c55e",
+            background: "#16a34a",
             color: "#e5e7eb",
             fontSize: "0.8rem",
-            cursor: "pointer",
+            cursor: "default",
           }}
         >
           Global IOC Map
         </button>
 
-        {/* Only show AI Dashboard button if NOT embed mode (i.e., on Netlify) */}
+        {/* Only show this on the standalone Netlify site (not inside Streamlit iframe) */}
         {!embedMode && (
           <button
-            onClick={() => setPage("dashboard")}
+            onClick={goToDashboard}
             style={{
               padding: "0.3rem 0.9rem",
               borderRadius: 999,
-              border: "1px solid",
-              borderColor: page === "dashboard" ? "#22c55e" : "transparent",
-              background: page === "dashboard" ? "#16a34a" : "#0f172a",
+              border: "1px solid #22c55e",
+              background: "#0f172a",
               color: "#e5e7eb",
               fontSize: "0.8rem",
               cursor: "pointer",
@@ -72,9 +71,8 @@ const App: React.FC = () => {
         )}
       </nav>
 
-      {/* Page content */}
-      {page === "globe" && <GlobeMap />}
-      {!embedMode && page === "dashboard" && <StreamlitDashboard />}
+      {/* Always show the globe as main content */}
+      <GlobeMap />
     </div>
   );
 };
