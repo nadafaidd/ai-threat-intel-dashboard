@@ -17,7 +17,12 @@ add_fireflies_background()
 # Where the React globe is hosted.
 # For local dev:
 #   FRONTEND_GLOBE_URL is optional env var; falls back to localhost:5173
-GLOBE_URL = "https://threat-globe.netlify.app"
+# Where the React globe is hosted.
+GLOBE_URL = os.getenv(
+    "FRONTEND_GLOBE_URL",
+    "https://threat-globe.netlify.app?embed=1",
+)
+
 
 # ---------------------- Page Header ---------------------- #
 
