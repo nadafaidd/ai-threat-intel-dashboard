@@ -4,8 +4,15 @@ import StreamlitDashboard from "./StreamlitDashboard";
 
 type Page = "globe" | "dashboard";
 
+function detectEmbedMode(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("embed") === "1";
+}
+
 const App: React.FC = () => {
   const [page, setPage] = useState<Page>("globe");
+  const [embedMode] = useState<boolean>(detectEmbedMode);
 
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -41,25 +48,31 @@ const App: React.FC = () => {
         >
           Global IOC Map
         </button>
-        <button
-          onClick={() => setPage("dashboard")}
-          style={{
-            padding: "0.3rem 0.9rem",
-            borderRadius: 999,
-            border: "1px solid",
-            borderColor: page === "dashboard" ? "#22c55e" : "transparent",
-            background: page === "dashboard" ? "#16a34a" : "#0f172a",
-            color: "#e5e7eb",
-            fontSize: "0.8rem",
-            cursor: "pointer",
-          }}
-        >
-          AI Threat Dashboard
-        </button>
+
+        {/* Hide this button in embed mode */}
+        {!embedMode && (
+          <button
+            onClick={() => setPage("dashboard")}
+            style={{
+              padding: "0.3rem 0.9rem",
+              borderRadius: 999,
+              border: "1px solid",
+              borderColor: page === "dashboard" ? "#22c55e" : "transparent",
+              background: page === "dashboard" ? "#16a34a" : "#0f172a",
+              color: "#e5e7eb",
+              fontSize: "0.8rem",
+              cursor: "pointer",
+            }}
+          >
+            AI Threat Dashboard
+          </button>
+        )}
       </nav>
 
       {page === "globe" && <GlobeMap />}
-      {page === "dashboard" && <StreamlitDashboard />}
+
+      {/* Only render the StreamlitDashboard tab in standalone mode */}
+      {!embedMode && page === "dashboard" && <StreamlitDashboard />}
     </div>
   );
 };
