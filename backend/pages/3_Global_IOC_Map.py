@@ -3,15 +3,21 @@ from datetime import datetime
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from core import feeds
 from core.ui_effects import add_fireflies_background
 from core.layout import add_top_links
 
 add_top_links()
-
 add_fireflies_background()
 
+# ---------------------- Config ---------------------- #
+
+# Where the React globe is hosted.
+# For local dev:
+#   FRONTEND_GLOBE_URL is optional env var; falls back to localhost:5173
+GLOBE_URL = "https://threat-globe.netlify.app"
 
 # ---------------------- Page Header ---------------------- #
 
@@ -20,8 +26,10 @@ st.title("Geo & IoCs")
 st.write(
     """
     This page visualizes where recent Indicators of Compromise (IoCs) are located based on
-    open-source threat intelligence feeds. The 3D globe below is a prototype view of global
-    activity served by a separate React / Mapbox app.
+    open-source threat intelligence feeds.
+
+    The 3D globe below is a prototype view of global activity served by a **separate
+    Vite/React + Mapbox app**.
     """
 )
 
@@ -31,24 +39,44 @@ st.subheader("3D attack globe (React prototype)")
 
 st.write(
     """
-    The globe below is served by a separate Vite/React app that uses Deck.gl and Mapbox's
-    `projection='globe'` mode. It currently animates simulated attack intensity per country,
-    but it could be wired to real IoCs in the future.
+    The globe below is rendered by a standalone Vite/React app that uses Mapbox's
+    `projection="globe"` mode. It currently animates simulated attack intensity per
+    country, but it could be wired to real IoCs from ThreatFox in the future.
     """
 )
 
+# Optional static preview image (you can drop a screenshot at backend/assets/globe_preview.png)
 try:
-    # Change the URL if your React app runs on another port.
-    st.components.v1.iframe(
-        src="http://localhost:5173",
+    st.image(
+        "assets/globe_preview.png",
+        caption="Static preview of the 3D Global IOC Map (Vite + React + Mapbox)",
+        use_column_width=True,
+    )
+except Exception:
+    # If the image doesn't exist, just skip silently
+    pass
+
+st.markdown("### Live interactive globe")
+
+# Embed the live globe
+try:
+    components.iframe(
+        src=GLOBE_URL,
         height=600,
         scrolling=False,
     )
 except Exception:
     st.info(
-        "React globe is not reachable. Make sure the `threat-map-frontend` app is running "
-        "with `npm run dev` in a separate terminal."
+        "The React globe is not reachable right now.\n\n"
+        "- For local development, make sure the `frontend` / `threat-map-frontend` app "
+        "is running with `npm run dev`.\n"
+        "- If you deployed it (e.g. Netlify), set `FRONTEND_GLOBE_URL` to its URL."
     )
+
+# Backup link to open in a new tab
+st.markdown(
+    f"👉 [Open interactive 3D globe in a new tab]({GLOBE_URL})",
+)
 
 st.markdown("---")
 
@@ -80,7 +108,9 @@ with col_b:
 
 # ---------------------- Fetch IoCs from ThreatFox ---------------------- #
 
-threatfox_items_raw = feeds.fetch_threatfox_iocs(limit=int(max_iocs), days=int(days_back))
+threatfox_items_raw = feeds.fetch_threatfox_iocs(
+    limit=int(max_iocs), days=int(days_back)
+)
 items = [feeds.normalize(it) for it in threatfox_items_raw]
 
 st.caption(
