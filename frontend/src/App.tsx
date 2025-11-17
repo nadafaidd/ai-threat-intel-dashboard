@@ -4,6 +4,7 @@ import StreamlitDashboard from "./StreamlitDashboard";
 
 type Page = "globe" | "dashboard";
 
+// Detect if we're in EMBED mode (inside Streamlit)
 function detectEmbedMode(): boolean {
   if (typeof window === "undefined") return false;
   const params = new URLSearchParams(window.location.search);
@@ -11,12 +12,13 @@ function detectEmbedMode(): boolean {
 }
 
 const App: React.FC = () => {
+  const embedMode = detectEmbedMode();
   const [page, setPage] = useState<Page>("globe");
-  const [embedMode] = useState<boolean>(detectEmbedMode);
 
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
-      {/* simple top nav */}
+      
+      {/* Top nav */}
       <nav
         style={{
           position: "absolute",
@@ -33,6 +35,7 @@ const App: React.FC = () => {
           backdropFilter: "blur(10px)",
         }}
       >
+        {/* Always show Global IOC Map */}
         <button
           onClick={() => setPage("globe")}
           style={{
@@ -49,7 +52,7 @@ const App: React.FC = () => {
           Global IOC Map
         </button>
 
-        {/* Hide this button in embed mode */}
+        {/* Only show AI Dashboard button if NOT embed mode (i.e., on Netlify) */}
         {!embedMode && (
           <button
             onClick={() => setPage("dashboard")}
@@ -69,9 +72,8 @@ const App: React.FC = () => {
         )}
       </nav>
 
+      {/* Page content */}
       {page === "globe" && <GlobeMap />}
-
-      {/* Only render the StreamlitDashboard tab in standalone mode */}
       {!embedMode && page === "dashboard" && <StreamlitDashboard />}
     </div>
   );

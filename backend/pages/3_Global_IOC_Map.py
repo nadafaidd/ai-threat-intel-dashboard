@@ -61,8 +61,6 @@ except Exception:
     # If the image doesn't exist, just skip silently
     pass
 
-st.markdown("### Live interactive globe")
-
 # Embed the live globe
 try:
     components.iframe(
